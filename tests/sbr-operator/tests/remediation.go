@@ -181,7 +181,7 @@ var _ = Describe(
 				sbrparams.SBRCFunctionalTestName, storageClass))
 
 			setupSBRC = buildSBRC(sbrparams.SBRCFunctionalTestName, map[string]interface{}{
-				"sharedStorageClass": storageClass,
+				sharedStorageClassKey: storageClass,
 			})
 
 			createErr := APIClient.Create(context.TODO(), setupSBRC)
@@ -197,7 +197,7 @@ var _ = Describe(
 			controllerNodes := controllerPodNodes()
 
 			nodeList, err := APIClient.CoreV1Interface.Nodes().List(context.TODO(), metav1.ListOptions{
-				LabelSelector: "node-role.kubernetes.io/worker",
+				LabelSelector: medik8sparams.WorkerRoleLabel,
 			})
 			Expect(err).ToNot(HaveOccurred(), "Failed to list worker nodes")
 

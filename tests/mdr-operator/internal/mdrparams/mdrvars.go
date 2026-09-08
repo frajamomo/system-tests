@@ -36,16 +36,16 @@ var (
 
 	// RequiredAnnotations defines the required annotations and expected values for MDR CSV.
 	RequiredAnnotations = map[string]string{
-		"features.operators.openshift.io/tls-profiles":     "false",
+		"features.operators.openshift.io/tls-profiles":     annotationFalse,
 		"features.operators.openshift.io/disconnected":     "true",
 		"features.operators.openshift.io/fips-compliant":   "true",
-		"features.operators.openshift.io/proxy-aware":      "false",
-		"features.operators.openshift.io/cnf":              "false",
-		"features.operators.openshift.io/cni":              "false",
-		"features.operators.openshift.io/csi":              "false",
-		"features.operators.openshift.io/token-auth-aws":   "false",
-		"features.operators.openshift.io/token-auth-azure": "false",
-		"features.operators.openshift.io/token-auth-gcp":   "false",
+		"features.operators.openshift.io/proxy-aware":      annotationFalse,
+		"features.operators.openshift.io/cnf":              annotationFalse,
+		"features.operators.openshift.io/cni":              annotationFalse,
+		"features.operators.openshift.io/csi":              annotationFalse,
+		"features.operators.openshift.io/token-auth-aws":   annotationFalse,
+		"features.operators.openshift.io/token-auth-azure": annotationFalse,
+		"features.operators.openshift.io/token-auth-gcp":   annotationFalse,
 		"operatorframework.io/suggested-namespace":         medik8sparams.OperatorNs,
 	}
 )

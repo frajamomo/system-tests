@@ -32,17 +32,17 @@ import (
 func buildSNRCR(kind, name string, spec map[string]interface{}) *unstructured.Unstructured {
 	resource := &unstructured.Unstructured{
 		Object: map[string]interface{}{
-			"apiVersion": snrparams.CRDGroup + "/" + snrparams.CRDVersion,
-			"kind":       kind,
-			"metadata": map[string]interface{}{
-				"name":      name,
-				"namespace": medik8sparams.OperatorNs,
+			keyAPIVersion: snrparams.CRDGroup + "/" + snrparams.CRDVersion,
+			keyKind:       kind,
+			keyMetadata: map[string]interface{}{
+				keyName:      name,
+				keyNamespace: medik8sparams.OperatorNs,
 			},
 		},
 	}
 
 	if spec != nil {
-		resource.Object["spec"] = spec
+		resource.Object[keySpec] = spec
 	}
 
 	return resource
@@ -53,8 +53,8 @@ func buildSNRWithAnnotations(
 	name string, annotations map[string]string,
 ) *unstructured.Unstructured {
 	metadata := map[string]interface{}{
-		"name":      name,
-		"namespace": medik8sparams.OperatorNs,
+		keyName:      name,
+		keyNamespace: medik8sparams.OperatorNs,
 	}
 
 	if annotations != nil {
@@ -68,9 +68,9 @@ func buildSNRWithAnnotations(
 
 	return &unstructured.Unstructured{
 		Object: map[string]interface{}{
-			"apiVersion": snrparams.CRDGroup + "/" + snrparams.CRDVersion,
-			"kind":       "SelfNodeRemediation",
-			"metadata":   metadata,
+			keyAPIVersion: snrparams.CRDGroup + "/" + snrparams.CRDVersion,
+			keyKind:       selfNodeRemediationKind,
+			keyMetadata:   metadata,
 		},
 	}
 }
@@ -94,7 +94,7 @@ func deferDeleteCR(resource *unstructured.Unstructured) {
 var snrGVK = schema.GroupVersionKind{
 	Group:   snrparams.CRDGroup,
 	Version: snrparams.CRDVersion,
-	Kind:    "SelfNodeRemediation",
+	Kind:    selfNodeRemediationKind,
 }
 
 // snrcGVK is the GroupVersionKind for SelfNodeRemediationConfig CRs.
@@ -251,7 +251,7 @@ var nhcGVK = schema.GroupVersionKind{
 var snrtGVK = schema.GroupVersionKind{
 	Group:   snrparams.CRDGroup,
 	Version: snrparams.CRDVersion,
-	Kind:    "SelfNodeRemediationTemplate",
+	Kind:    selfNodeRemediationTemplateKind,
 }
 
 // isNHCCRDInstalled checks whether the NodeHealthCheck CRD is registered
@@ -368,7 +368,7 @@ func buildNHC(name, snrtName, roleLabel string) *unstructured.Unstructured {
 	// instead of percentage to avoid ceil rounding issues on small clusters
 	// (e.g. ceil(0.51 * 2) = 2 would block remediation on 2-worker).
 	// on 2-worker clusters).
-	nhc.Object["spec"] = map[string]interface{}{
+	nhc.Object[keySpec] = map[string]interface{}{
 		"selector": map[string]interface{}{
 			"matchExpressions": []interface{}{
 				map[string]interface{}{
@@ -378,10 +378,10 @@ func buildNHC(name, snrtName, roleLabel string) *unstructured.Unstructured {
 			},
 		},
 		"remediationTemplate": map[string]interface{}{
-			"apiVersion": snrparams.CRDGroup + "/" + snrparams.CRDVersion,
-			"kind":       "SelfNodeRemediationTemplate",
-			"name":       snrtName,
-			"namespace":  medik8sparams.OperatorNs,
+			keyAPIVersion: snrparams.CRDGroup + "/" + snrparams.CRDVersion,
+			keyKind:       selfNodeRemediationTemplateKind,
+			keyName:       snrtName,
+			keyNamespace:  medik8sparams.OperatorNs,
 		},
 		"minHealthy": int64(1),
 		"unhealthyConditions": []interface{}{
@@ -407,16 +407,16 @@ func buildNHC(name, snrtName, roleLabel string) *unstructured.Unstructured {
 func buildSNRT(name, strategy string) *unstructured.Unstructured {
 	return &unstructured.Unstructured{
 		Object: map[string]interface{}{
-			"apiVersion": snrparams.CRDGroup + "/" + snrparams.CRDVersion,
-			"kind":       "SelfNodeRemediationTemplate",
-			"metadata": map[string]interface{}{
-				"name":      name,
-				"namespace": medik8sparams.OperatorNs,
+			keyAPIVersion: snrparams.CRDGroup + "/" + snrparams.CRDVersion,
+			keyKind:       selfNodeRemediationTemplateKind,
+			keyMetadata: map[string]interface{}{
+				keyName:      name,
+				keyNamespace: medik8sparams.OperatorNs,
 			},
-			"spec": map[string]interface{}{
+			keySpec: map[string]interface{}{
 				"template": map[string]interface{}{
-					"spec": map[string]interface{}{
-						"remediationStrategy": strategy,
+					keySpec: map[string]interface{}{
+						keyRemediationStrategy: strategy,
 					},
 				},
 			},

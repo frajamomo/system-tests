@@ -82,8 +82,8 @@ var _ = Describe("FAR Operator Upgrade",
 					Namespace: medik8sparams.OperatorNs,
 				},
 				StringData: map[string]string{
-					"--access-key": awsAccessKey,
-					"--secret-key": awsSecretKey,
+					flagAccessKey: awsAccessKey,
+					flagSecretKey: awsSecretKey,
 				},
 			}
 
@@ -411,9 +411,9 @@ func upgradeProvisionRemediationResources(
 	GinkgoWriter.Printf("Fence agent: %s, Region: %s\n", fenceAgent, region)
 
 	sharedParams := map[string]interface{}{
-		"--region":          region,
-		"--action":          "reboot",
-		"--skip-race-check": "",
+		flagRegion:        region,
+		flagAction:        actionReboot,
+		flagSkipRaceCheck: "",
 	}
 
 	awsNodeParams, err := farutils.BuildAWSNodeParameters(ctx, APIClient)

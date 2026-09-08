@@ -118,12 +118,12 @@ var _ = Describe(
 			reportxml.ID("88734"),
 			func() {
 				sbrcA := buildSBRC(sbrparams.SBRCLifecycleTestNameA, map[string]interface{}{
-					"sharedStorageClass": rwxStorageClass,
-					"sbrTimeoutSeconds":  int64(sbrparams.SBRCTimeoutSecondsMin),
+					sharedStorageClassKey: rwxStorageClass,
+					sbrTimeoutSecondsKey:  int64(sbrparams.SBRCTimeoutSecondsMin),
 				})
 				sbrcB := buildSBRC(sbrparams.SBRCLifecycleTestNameB, map[string]interface{}{
-					"sharedStorageClass": rwxStorageClass,
-					"sbrTimeoutSeconds":  int64(sbrparams.SBRCTimeoutSecondsMin),
+					sharedStorageClassKey: rwxStorageClass,
+					sbrTimeoutSecondsKey:  int64(sbrparams.SBRCTimeoutSecondsMin),
 				})
 
 				DeferCleanup(func() {
@@ -155,8 +155,8 @@ var _ = Describe(
 					"and verifying the DaemonSet rolls out")
 
 				patchPayload, marshalErr := json.Marshal(map[string]interface{}{
-					"spec": map[string]interface{}{
-						"sbrTimeoutSeconds": int64(sbrparams.SBRCTimeoutSecondsMin + 10),
+					keySpec: map[string]interface{}{
+						sbrTimeoutSecondsKey: int64(sbrparams.SBRCTimeoutSecondsMin + 10),
 					},
 				})
 				Expect(marshalErr).ToNot(HaveOccurred(), "Failed to marshal patch payload for SBRC A")

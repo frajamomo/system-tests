@@ -28,7 +28,7 @@ import (
 func buildNHCNodeHang(name string) *unstructured.Unstructured {
 	nhc := &unstructured.Unstructured{}
 	nhc.SetAPIVersion(sbrparams.NHCAPIGroup + "/" + sbrparams.NHCAPIVersion)
-	nhc.SetKind("NodeHealthCheck")
+	nhc.SetKind(nodeHealthCheckKind)
 	nhc.SetName(name)
 
 	// NOTE: this selector matches ALL worker nodes. If another worker goes NotReady
@@ -45,30 +45,30 @@ func buildNHCNodeHang(name string) *unstructured.Unstructured {
 		"selector": map[string]interface{}{
 			"matchExpressions": []interface{}{
 				map[string]interface{}{
-					"key":      "node-role.kubernetes.io/worker",
+					"key":      medik8sparams.WorkerRoleLabel,
 					"operator": "Exists",
 				},
 			},
 		},
 		"remediationTemplate": map[string]interface{}{
-			"apiVersion": sbrparams.CRDGroup + "/" + sbrparams.CRDVersion,
-			"kind":       "StorageBasedRemediationTemplate",
-			"name":       sbrparams.SBRTemplateName,
-			"namespace":  medik8sparams.OperatorNs,
+			keyAPIVersion: sbrparams.CRDGroup + "/" + sbrparams.CRDVersion,
+			keyKind:       storageBasedRemediationTemplateKind,
+			keyName:       sbrparams.SBRTemplateName,
+			keyNamespace:  medik8sparams.OperatorNs,
 		},
 		"unhealthyConditions": []interface{}{
 			map[string]interface{}{
-				"type":     "Ready",
-				"status":   "False",
-				"duration": "60s",
+				keyType:     "Ready",
+				keyStatus:   "False",
+				keyDuration: "60s",
 			},
 			map[string]interface{}{
-				"type":     "Ready",
-				"status":   "Unknown",
-				"duration": "60s",
+				keyType:     "Ready",
+				keyStatus:   "Unknown",
+				keyDuration: "60s",
 			},
 		},
-	}, "spec")
+	}, keySpec)
 
 	return nhc
 }
@@ -104,7 +104,7 @@ var _ = Describe(
 			By("Creating SBRC with shared storage class")
 
 			setupSBRC = buildSBRC(sbrparams.SBRCNodeHangTestName, map[string]interface{}{
-				"sharedStorageClass": rwxStorageClass,
+				sharedStorageClassKey: rwxStorageClass,
 			})
 
 			createErr := APIClient.Create(context.TODO(), setupSBRC)
@@ -130,7 +130,7 @@ var _ = Describe(
 			controllerNodes := controllerPodNodes()
 
 			nodeList, err := APIClient.CoreV1Interface.Nodes().List(context.TODO(), metav1.ListOptions{
-				LabelSelector: "node-role.kubernetes.io/worker",
+				LabelSelector: medik8sparams.WorkerRoleLabel,
 			})
 			Expect(err).ToNot(HaveOccurred(), "Failed to list worker nodes")
 
@@ -191,7 +191,7 @@ var _ = Describe(
 				}, probePodName)
 
 				buf, execErr := probePod.ExecCommand(
-					[]string{"nsenter", "-t", "1", "--pid", "--mnt", "--",
+					[]string{cmdNsenter, "-t", "1", flagPID, "--mnt", "--",
 						"cat", "/proc/sys/kernel/sysrq"})
 
 				if _, delErr := probePod.Delete(); delErr != nil {
@@ -278,7 +278,7 @@ var _ = Describe(
 							// Best-effort: flush DROP-all rules injected via the fallback path.
 							// Iptables rules persist in the host kernel after pod deletion.
 							_, _ = existing.ExecCommand([]string{
-								"nsenter", "-t", "1", "--net", "--mount", "--", "sh", "-c",
+								cmdNsenter, "-t", "1", flagNet, flagMount, "--", "sh", "-c",
 								"iptables -D INPUT -j DROP 2>/dev/null; iptables -D OUTPUT -j DROP 2>/dev/null || true",
 							})
 						}
@@ -305,7 +305,7 @@ var _ = Describe(
 
 					// Fire-and-forget: exec will fail because the node reboots immediately.
 					_, _ = injectorPod.ExecCommand([]string{
-						"nsenter", "-t", "1", "--pid", "--mnt", "--", "sh", "-c",
+						cmdNsenter, "-t", "1", flagPID, "--mnt", "--", "sh", "-c",
 						"echo 1 > /proc/sys/kernel/sysrq && echo c > /proc/sysrq-trigger",
 					})
 				} else {
@@ -319,7 +319,7 @@ var _ = Describe(
 					// Uses --pid to enter the host PID namespace so the timer process is adopted
 					// by init and survives container termination.
 					_, _ = injectorPod.ExecCommand([]string{
-						"nsenter", "-t", "1", "--pid", "--net", "--mount", "--", "sh", "-c",
+						cmdNsenter, "-t", "1", flagPID, flagNet, flagMount, "--", "sh", "-c",
 						"(sleep 300 && iptables -D INPUT -j DROP && iptables -D OUTPUT -j DROP) & " +
 							"iptables -I INPUT -j DROP && iptables -I OUTPUT -j DROP",
 					})
@@ -414,7 +414,7 @@ var _ = Describe(
 						return fmt.Errorf("get StorageBasedRemediation/%s: %w", targetNodeName, pullErr)
 					}
 
-					conditions, _, _ := unstructured.NestedSlice(sbrCR.Object, "status", "conditions")
+					conditions, _, _ := unstructured.NestedSlice(sbrCR.Object, keyStatus, "conditions")
 
 					for _, raw := range conditions {
 						cond, ok := raw.(map[string]interface{})
@@ -422,8 +422,8 @@ var _ = Describe(
 							continue
 						}
 
-						condType, _, _ := unstructured.NestedString(cond, "type")
-						condStatus, _, _ := unstructured.NestedString(cond, "status")
+						condType, _, _ := unstructured.NestedString(cond, keyType)
+						condStatus, _, _ := unstructured.NestedString(cond, keyStatus)
 
 						if condType == sbrparams.FencingSucceededCondition && condStatus == string(corev1.ConditionTrue) {
 							fencingObserved = true

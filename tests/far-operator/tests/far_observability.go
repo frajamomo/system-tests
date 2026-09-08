@@ -117,8 +117,8 @@ var _ = Describe("FAR Observability Tests",
 					Namespace: medik8sparams.OperatorNs,
 				},
 				StringData: map[string]string{
-					"--access-key": awsAccessKey,
-					"--secret-key": awsSecretKey,
+					flagAccessKey: awsAccessKey,
+					flagSecretKey: awsSecretKey,
 				},
 			}
 
@@ -130,9 +130,9 @@ var _ = Describe("FAR Observability Tests",
 			By("Building shared and node parameters for fence agent")
 
 			sharedParams = map[string]interface{}{
-				"--region":          region,
-				"--action":          "reboot",
-				"--skip-race-check": "",
+				flagRegion:        region,
+				flagAction:        actionReboot,
+				flagSkipRaceCheck: "",
 			}
 
 			awsNodeParams, err := farutils.BuildAWSNodeParameters(ctx, APIClient)
@@ -253,7 +253,7 @@ var _ = Describe("FAR Observability Tests",
 
 					Expect(helpers.WaitForEvents(ctx, APIClient.K8sClient,
 						helpers.InvolvedObjectRef{
-							Kind:      "FenceAgentsRemediation",
+							Kind:      fenceAgentsRemediationKind,
 							Name:      farCRName,
 							Namespace: medik8sparams.OperatorNs,
 							UID:       string(farCR.GetUID()),
@@ -275,7 +275,7 @@ var _ = Describe("FAR Observability Tests",
 						{
 							Description:  "node YAML files",
 							PathContains: "nodes",
-							NameGlob:     "*.yaml",
+							NameGlob:     globYAML,
 							MinCount:     1,
 						},
 						{
@@ -286,13 +286,13 @@ var _ = Describe("FAR Observability Tests",
 						{
 							Description:  "FAR operator namespace resources",
 							PathContains: medik8sparams.OperatorNs,
-							NameGlob:     "*.yaml",
+							NameGlob:     globYAML,
 							MinCount:     1,
 						},
 						{
 							Description:  "active FenceAgentsRemediation CR instance",
 							PathContains: "fence-agents-remediation.medik8s.io/fenceagentsremediations",
-							NameGlob:     "*.yaml",
+							NameGlob:     globYAML,
 							MinCount:     1,
 						},
 					}

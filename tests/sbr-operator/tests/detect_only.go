@@ -93,7 +93,7 @@ var _ = Describe(
 			By("Listing schedulable worker nodes")
 
 			nodeList, listErr := APIClient.CoreV1Interface.Nodes().List(context.TODO(), metav1.ListOptions{
-				LabelSelector: "node-role.kubernetes.io/worker",
+				LabelSelector: medik8sparams.WorkerRoleLabel,
 			})
 			Expect(listErr).ToNot(HaveOccurred(), "Failed to list worker nodes")
 
@@ -192,8 +192,8 @@ var _ = Describe(
 			By("Creating StorageBasedRemediationConfig with detectOnlyMode: Enabled")
 
 			detectOnlySBRC = buildSBRC(sbrparams.SBRCDetectOnlyTestName, map[string]interface{}{
-				"detectOnlyMode":     "Enabled",
-				"sharedStorageClass": rwxStorageClass,
+				"detectOnlyMode":      "Enabled",
+				sharedStorageClassKey: rwxStorageClass,
 			})
 
 			createErr := APIClient.Create(context.TODO(), detectOnlySBRC)

@@ -38,56 +38,56 @@ func getNodeBootID(nodeName string) (string, error) {
 // cephFSRejectBidirectional defines nsenter + iptables REJECT rules for both INPUT and OUTPUT
 // chains covering all CephFS port groups: 3300 (msgr2), 6789 (msgr1 mon), 6800-7300 (OSD/MDS).
 var cephFSRejectBidirectional = [][]string{
-	{"nsenter", "--target", "1", "--net", "--mount", "--",
-		"iptables", "-I", "OUTPUT", "-p", "tcp", "--dport", "3300", "-j", "REJECT"},
-	{"nsenter", "--target", "1", "--net", "--mount", "--",
-		"iptables", "-I", "INPUT", "-p", "tcp", "--sport", "3300", "-j", "REJECT"},
-	{"nsenter", "--target", "1", "--net", "--mount", "--",
-		"iptables", "-I", "OUTPUT", "-p", "tcp", "--dport", "6789", "-j", "REJECT"},
-	{"nsenter", "--target", "1", "--net", "--mount", "--",
-		"iptables", "-I", "INPUT", "-p", "tcp", "--sport", "6789", "-j", "REJECT"},
-	{"nsenter", "--target", "1", "--net", "--mount", "--",
-		"iptables", "-I", "OUTPUT", "-p", "tcp", "--dport", "6800:7300", "-j", "REJECT"},
-	{"nsenter", "--target", "1", "--net", "--mount", "--",
-		"iptables", "-I", "INPUT", "-p", "tcp", "--sport", "6800:7300", "-j", "REJECT"},
+	{cmdNsenter, flagTarget, "1", flagNet, flagMount, "--",
+		cmdIptables, "-I", iptablesChainOut, "-p", protoTCP, flagDport, "3300", "-j", iptablesReject},
+	{cmdNsenter, flagTarget, "1", flagNet, flagMount, "--",
+		cmdIptables, "-I", iptablesChainIn, "-p", protoTCP, flagSport, "3300", "-j", iptablesReject},
+	{cmdNsenter, flagTarget, "1", flagNet, flagMount, "--",
+		cmdIptables, "-I", iptablesChainOut, "-p", protoTCP, flagDport, "6789", "-j", iptablesReject},
+	{cmdNsenter, flagTarget, "1", flagNet, flagMount, "--",
+		cmdIptables, "-I", iptablesChainIn, "-p", protoTCP, flagSport, "6789", "-j", iptablesReject},
+	{cmdNsenter, flagTarget, "1", flagNet, flagMount, "--",
+		cmdIptables, "-I", iptablesChainOut, "-p", protoTCP, flagDport, portRange6800, "-j", iptablesReject},
+	{cmdNsenter, flagTarget, "1", flagNet, flagMount, "--",
+		cmdIptables, "-I", iptablesChainIn, "-p", protoTCP, flagSport, portRange6800, "-j", iptablesReject},
 }
 
 // cephFSFlushBidirectional defines the corresponding -D (delete) rules for cephFSRejectBidirectional.
 var cephFSFlushBidirectional = [][]string{
-	{"nsenter", "--target", "1", "--net", "--mount", "--",
-		"iptables", "-D", "OUTPUT", "-p", "tcp", "--dport", "3300", "-j", "REJECT"},
-	{"nsenter", "--target", "1", "--net", "--mount", "--",
-		"iptables", "-D", "INPUT", "-p", "tcp", "--sport", "3300", "-j", "REJECT"},
-	{"nsenter", "--target", "1", "--net", "--mount", "--",
-		"iptables", "-D", "OUTPUT", "-p", "tcp", "--dport", "6789", "-j", "REJECT"},
-	{"nsenter", "--target", "1", "--net", "--mount", "--",
-		"iptables", "-D", "INPUT", "-p", "tcp", "--sport", "6789", "-j", "REJECT"},
-	{"nsenter", "--target", "1", "--net", "--mount", "--",
-		"iptables", "-D", "OUTPUT", "-p", "tcp", "--dport", "6800:7300", "-j", "REJECT"},
-	{"nsenter", "--target", "1", "--net", "--mount", "--",
-		"iptables", "-D", "INPUT", "-p", "tcp", "--sport", "6800:7300", "-j", "REJECT"},
+	{cmdNsenter, flagTarget, "1", flagNet, flagMount, "--",
+		cmdIptables, "-D", iptablesChainOut, "-p", protoTCP, flagDport, "3300", "-j", iptablesReject},
+	{cmdNsenter, flagTarget, "1", flagNet, flagMount, "--",
+		cmdIptables, "-D", iptablesChainIn, "-p", protoTCP, flagSport, "3300", "-j", iptablesReject},
+	{cmdNsenter, flagTarget, "1", flagNet, flagMount, "--",
+		cmdIptables, "-D", iptablesChainOut, "-p", protoTCP, flagDport, "6789", "-j", iptablesReject},
+	{cmdNsenter, flagTarget, "1", flagNet, flagMount, "--",
+		cmdIptables, "-D", iptablesChainIn, "-p", protoTCP, flagSport, "6789", "-j", iptablesReject},
+	{cmdNsenter, flagTarget, "1", flagNet, flagMount, "--",
+		cmdIptables, "-D", iptablesChainOut, "-p", protoTCP, flagDport, portRange6800, "-j", iptablesReject},
+	{cmdNsenter, flagTarget, "1", flagNet, flagMount, "--",
+		cmdIptables, "-D", iptablesChainIn, "-p", protoTCP, flagSport, portRange6800, "-j", iptablesReject},
 }
 
 // cephFSRejectOutput defines nsenter + iptables REJECT rules for the OUTPUT chain only.
 var cephFSRejectOutput = [][]string{
-	{"nsenter", "--target", "1", "--net", "--mount", "--",
-		"iptables", "-I", "OUTPUT", "-p", "tcp", "--dport", "3300", "-j", "REJECT"},
-	{"nsenter", "--target", "1", "--net", "--mount", "--",
-		"iptables", "-I", "OUTPUT", "-p", "tcp", "--dport", "6789", "-j", "REJECT"},
-	{"nsenter", "--target", "1", "--net", "--mount", "--",
-		"iptables", "-I", "OUTPUT", "-p", "tcp", "--match", "multiport",
-		"--dports", "6800:7300", "-j", "REJECT"},
+	{cmdNsenter, flagTarget, "1", flagNet, flagMount, "--",
+		cmdIptables, "-I", iptablesChainOut, "-p", protoTCP, flagDport, "3300", "-j", iptablesReject},
+	{cmdNsenter, flagTarget, "1", flagNet, flagMount, "--",
+		cmdIptables, "-I", iptablesChainOut, "-p", protoTCP, flagDport, "6789", "-j", iptablesReject},
+	{cmdNsenter, flagTarget, "1", flagNet, flagMount, "--",
+		cmdIptables, "-I", iptablesChainOut, "-p", protoTCP, "--match", "multiport",
+		"--dports", portRange6800, "-j", iptablesReject},
 }
 
 // cephFSFlushOutput defines the corresponding -D (delete) rules for cephFSRejectOutput.
 var cephFSFlushOutput = [][]string{
-	{"nsenter", "--target", "1", "--net", "--mount", "--",
-		"iptables", "-D", "OUTPUT", "-p", "tcp", "--dport", "3300", "-j", "REJECT"},
-	{"nsenter", "--target", "1", "--net", "--mount", "--",
-		"iptables", "-D", "OUTPUT", "-p", "tcp", "--dport", "6789", "-j", "REJECT"},
-	{"nsenter", "--target", "1", "--net", "--mount", "--",
-		"iptables", "-D", "OUTPUT", "-p", "tcp", "--match", "multiport",
-		"--dports", "6800:7300", "-j", "REJECT"},
+	{cmdNsenter, flagTarget, "1", flagNet, flagMount, "--",
+		cmdIptables, "-D", iptablesChainOut, "-p", protoTCP, flagDport, "3300", "-j", iptablesReject},
+	{cmdNsenter, flagTarget, "1", flagNet, flagMount, "--",
+		cmdIptables, "-D", iptablesChainOut, "-p", protoTCP, flagDport, "6789", "-j", iptablesReject},
+	{cmdNsenter, flagTarget, "1", flagNet, flagMount, "--",
+		cmdIptables, "-D", iptablesChainOut, "-p", protoTCP, "--match", "multiport",
+		"--dports", portRange6800, "-j", iptablesReject},
 }
 
 // injectCephFSRejectBidirectional inserts iptables REJECT rules on both INPUT and OUTPUT chains
@@ -173,12 +173,12 @@ func isNHCCRDInstalled() bool {
 func buildNHC(name string) *unstructured.Unstructured {
 	return &unstructured.Unstructured{
 		Object: map[string]interface{}{
-			"apiVersion": sbrparams.NHCAPIGroup + "/" + sbrparams.NHCAPIVersion,
-			"kind":       "NodeHealthCheck",
+			keyAPIVersion: sbrparams.NHCAPIGroup + "/" + sbrparams.NHCAPIVersion,
+			keyKind:       nodeHealthCheckKind,
 			"metadata": map[string]interface{}{
-				"name": name,
+				keyName: name,
 			},
-			"spec": map[string]interface{}{
+			keySpec: map[string]interface{}{
 				// NHC requires exactly one of minHealthy/maxUnhealthy; omitting both is
 				// rejected by the validating webhook ("one of minHealthy and maxUnhealthy
 				// should be specified"). Since NHC v0.10.0 (maxUnhealthy support, PR #372)
@@ -189,23 +189,23 @@ func buildNHC(name string) *unstructured.Unstructured {
 				"selector": map[string]interface{}{
 					"matchExpressions": []interface{}{
 						map[string]interface{}{
-							"key":      "node-role.kubernetes.io/worker",
+							"key":      medik8sparams.WorkerRoleLabel,
 							"operator": "Exists",
 						},
 					},
 				},
 				"unhealthyConditions": []interface{}{
 					map[string]interface{}{
-						"type":     sbrparams.SBRStorageUnhealthyCondition,
-						"status":   string(corev1.ConditionTrue),
-						"duration": sbrparams.NHCUnhealthyDuration,
+						keyType:     sbrparams.SBRStorageUnhealthyCondition,
+						keyStatus:   string(corev1.ConditionTrue),
+						keyDuration: sbrparams.NHCUnhealthyDuration,
 					},
 				},
 				"remediationTemplate": map[string]interface{}{
-					"apiVersion": sbrparams.CRDGroup + "/" + sbrparams.CRDVersion,
-					"kind":       "StorageBasedRemediationTemplate",
-					"name":       sbrparams.SBRTemplateName,
-					"namespace":  medik8sparams.OperatorNs,
+					keyAPIVersion: sbrparams.CRDGroup + "/" + sbrparams.CRDVersion,
+					keyKind:       storageBasedRemediationTemplateKind,
+					keyName:       sbrparams.SBRTemplateName,
+					keyNamespace:  medik8sparams.OperatorNs,
 				},
 			},
 		},
@@ -216,7 +216,7 @@ func buildNHC(name string) *unstructured.Unstructured {
 func cleanupNHCCR(name string) {
 	nhc := &unstructured.Unstructured{}
 	nhc.SetAPIVersion(sbrparams.NHCAPIGroup + "/" + sbrparams.NHCAPIVersion)
-	nhc.SetKind("NodeHealthCheck")
+	nhc.SetKind(nodeHealthCheckKind)
 	nhc.SetName(name)
 
 	err := APIClient.Delete(context.TODO(), nhc)
@@ -230,7 +230,7 @@ func pickTargetWorkerNode() string {
 	controllerNodes := controllerPodNodes()
 
 	nodeList, err := APIClient.CoreV1Interface.Nodes().List(context.TODO(), metav1.ListOptions{
-		LabelSelector: "node-role.kubernetes.io/worker",
+		LabelSelector: medik8sparams.WorkerRoleLabel,
 	})
 	Expect(err).ToNot(HaveOccurred(), "Failed to list worker nodes")
 
@@ -252,7 +252,7 @@ func pickTargetWorkerNode() string {
 
 // getSBRCRCondition returns the named status condition from an unstructured SBR CR, or nil.
 func getSBRCRCondition(sbrObj *unstructured.Unstructured, condType string) map[string]interface{} {
-	conditions, found, err := unstructured.NestedSlice(sbrObj.Object, "status", "conditions")
+	conditions, found, err := unstructured.NestedSlice(sbrObj.Object, keyStatus, "conditions")
 	if err != nil || !found {
 		return nil
 	}
@@ -263,7 +263,7 @@ func getSBRCRCondition(sbrObj *unstructured.Unstructured, condType string) map[s
 			continue
 		}
 
-		if cond["type"] == condType {
+		if cond[keyType] == condType {
 			return cond
 		}
 	}

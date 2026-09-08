@@ -188,7 +188,7 @@ var _ = Describe(
 
 				By("Creating SNR with non-existent node name")
 
-				snrCR := buildSNRCR("SelfNodeRemediation", snrparams.SNRTestNodeName, nil)
+				snrCR := buildSNRCR(selfNodeRemediationKind, snrparams.SNRTestNodeName, nil)
 
 				err := APIClient.Create(context.TODO(), snrCR)
 				Expect(err).ToNot(HaveOccurred(),
@@ -202,7 +202,7 @@ var _ = Describe(
 				liveSNR.SetGroupVersionKind(schema.GroupVersionKind{
 					Group:   snrparams.CRDGroup,
 					Version: snrparams.CRDVersion,
-					Kind:    "SelfNodeRemediation",
+					Kind:    selfNodeRemediationKind,
 				})
 
 				Eventually(func() (string, error) {

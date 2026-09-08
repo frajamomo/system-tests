@@ -155,7 +155,7 @@ var _ = Describe(
 				automaticTemplate.SetGroupVersionKind(schema.GroupVersionKind{
 					Group:   snrparams.CRDGroup,
 					Version: snrparams.CRDVersion,
-					Kind:    "SelfNodeRemediationTemplate",
+					Kind:    selfNodeRemediationTemplateKind,
 				})
 
 				err := APIClient.Get(context.TODO(),
@@ -185,7 +185,7 @@ var _ = Describe(
 					tmpl.SetGroupVersionKind(schema.GroupVersionKind{
 						Group:   snrparams.CRDGroup,
 						Version: snrparams.CRDVersion,
-						Kind:    "SelfNodeRemediationTemplate",
+						Kind:    selfNodeRemediationTemplateKind,
 					})
 
 					err := APIClient.Get(context.TODO(),

@@ -140,7 +140,7 @@ var _ = Describe("NHC Negative -- Validation and Webhook",
 					cond, isMap := conditions[0].(map[string]interface{})
 					Expect(isMap).To(BeTrue(), "unhealthyConditions[0] is not a map")
 
-					cond["duration"] = "-30s"
+					cond[keyDuration] = "-30s"
 
 					err := APIClient.Create(ctx, nhc)
 					Expect(err).To(HaveOccurred(), "NHC creation with negative values should fail")
@@ -163,7 +163,7 @@ var _ = Describe("NHC Negative -- Validation and Webhook",
 					condStr, ok := conditionsStr[0].(map[string]interface{})
 					Expect(ok).To(BeTrue(), "unhealthyConditions[0] is not a map")
 
-					condStr["duration"] = "string"
+					condStr[keyDuration] = "string"
 
 					err = APIClient.Create(ctx, nhcStr)
 					Expect(err).To(HaveOccurred(), "NHC creation with string values should fail")
@@ -218,10 +218,10 @@ var _ = Describe("NHC Negative -- Validation and Webhook",
 
 					nhc := buildNHCForWorkers(nhcName)
 					spec := nhcSpec(nhc)
-					tmpl, ok := spec["remediationTemplate"].(map[string]interface{})
+					tmpl, ok := spec[keyRemediationTemplate].(map[string]interface{})
 					Expect(ok).To(BeTrue(), "NHC spec has no remediationTemplate map")
 
-					tmpl["name"] = "non-existent-template"
+					tmpl[keyName] = "non-existent-template"
 
 					Expect(APIClient.Create(ctx, nhc)).To(Succeed(),
 						"NHC creation should succeed even with a non-existent template")
@@ -240,11 +240,11 @@ var _ = Describe("NHC Negative -- Validation and Webhook",
 
 					nhcPP := buildNHCForWorkers(nhcName)
 					specPP := nhcSpec(nhcPP)
-					specPP["remediationTemplate"] = map[string]interface{}{
-						"apiVersion": "poison-pill-remediation.medik8s.io/v1alpha1",
-						"kind":       "PoisonPillRemediationTemplate",
-						"name":       "poison-pill-default-template",
-						"namespace":  medik8sparams.OperatorNs,
+					specPP[keyRemediationTemplate] = map[string]interface{}{
+						keyAPIVersion: "poison-pill-remediation.medik8s.io/v1alpha1",
+						keyKind:       "PoisonPillRemediationTemplate",
+						keyName:       "poison-pill-default-template",
+						keyNamespace:  medik8sparams.OperatorNs,
 					}
 
 					Expect(APIClient.Create(ctx, nhcPP)).To(Succeed(),
@@ -271,9 +271,9 @@ var _ = Describe("NHC Negative -- Validation and Webhook",
 
 					nhc := buildNHCForWorkers(nhcName)
 					spec := nhcSpec(nhc)
-					tmpl, ok := spec["remediationTemplate"].(map[string]interface{})
+					tmpl, ok := spec[keyRemediationTemplate].(map[string]interface{})
 					Expect(ok).To(BeTrue(), "NHC spec has no remediationTemplate map")
-					delete(tmpl, "namespace")
+					delete(tmpl, keyNamespace)
 
 					Expect(APIClient.Create(ctx, nhc)).To(Succeed(),
 						"NHC creation should succeed without namespace in template ref")
@@ -329,10 +329,10 @@ var _ = Describe("NHC Negative -- Validation and Webhook",
 
 					nhcTRT := buildNHCForWorkers(nhcName)
 					specTRT := nhcSpec(nhcTRT)
-					specTRT["remediationTemplate"] = map[string]interface{}{
-						"apiVersion": nhcparams.TestRemediationGroup + "/" + nhcparams.TestRemediationVersion,
-						"kind":       "TestRemediationTemplate",
-						"name":       nhcparams.TestRemediationTemplateName,
+					specTRT[keyRemediationTemplate] = map[string]interface{}{
+						keyAPIVersion: nhcparams.TestRemediationGroup + "/" + nhcparams.TestRemediationVersion,
+						keyKind:       testRemediationTemplateKind,
+						keyName:       nhcparams.TestRemediationTemplateName,
 					}
 
 					Expect(APIClient.Create(ctx, nhcTRT)).To(Succeed(),

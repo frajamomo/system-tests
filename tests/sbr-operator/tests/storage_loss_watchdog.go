@@ -80,7 +80,7 @@ var _ = Describe(
 			By("Creating StorageBasedRemediationConfig with shared storage")
 
 			testSBRC = buildSBRC(sbrparams.SBRCWatchdogPathTestName, map[string]interface{}{
-				"sharedStorageClass": rwxStorageClass,
+				sharedStorageClassKey: rwxStorageClass,
 			})
 
 			createErr := APIClient.Create(context.TODO(), testSBRC)
@@ -106,7 +106,7 @@ var _ = Describe(
 			controllerNodes := controllerPodNodes()
 
 			nodeList, listErr := APIClient.CoreV1Interface.Nodes().List(context.TODO(), metav1.ListOptions{
-				LabelSelector: "node-role.kubernetes.io/worker",
+				LabelSelector: medik8sparams.WorkerRoleLabel,
 			})
 			Expect(listErr).ToNot(HaveOccurred(), "Failed to list worker nodes")
 

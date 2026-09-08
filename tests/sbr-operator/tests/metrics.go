@@ -90,7 +90,7 @@ var _ = Describe(
 			}
 
 			sbrc := buildSBRC(sbrparams.SBRCMetricsTestName, map[string]interface{}{
-				"sharedStorageClass": storageClass,
+				sharedStorageClassKey: storageClass,
 			})
 
 			// DeferCleanup fires even when BeforeAll panics after Create succeeds, unlike AfterAll.

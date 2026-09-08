@@ -34,7 +34,7 @@ import (
 var farGVK = schema.GroupVersionKind{
 	Group:   "fence-agents-remediation.medik8s.io",
 	Version: "v1alpha1",
-	Kind:    "FenceAgentsRemediation",
+	Kind:    fenceAgentsRemediationKind,
 }
 
 var fartGVK = schema.GroupVersionKind{
@@ -122,8 +122,8 @@ var _ = Describe("FAR Destructive Tests",
 					Namespace: medik8sparams.OperatorNs,
 				},
 				StringData: map[string]string{
-					"--access-key": awsAccessKey,
-					"--secret-key": awsSecretKey,
+					flagAccessKey: awsAccessKey,
+					flagSecretKey: awsSecretKey,
 				},
 			}
 
@@ -136,9 +136,9 @@ var _ = Describe("FAR Destructive Tests",
 			By("Building fence_aws shared parameters")
 
 			sharedParams = map[string]interface{}{
-				"--region":          region,
-				"--action":          "reboot",
-				"--skip-race-check": "",
+				flagRegion:        region,
+				flagAction:        actionReboot,
+				flagSkipRaceCheck: "",
 			}
 
 			By("Building node parameters (--plug = EC2 instance ID)")
@@ -397,7 +397,7 @@ var _ = Describe("FAR Destructive Tests",
 
 						Expect(helpers.WaitForEvents(ctx, APIClient.K8sClient,
 							helpers.InvolvedObjectRef{
-								Kind:      "FenceAgentsRemediation",
+								Kind:      fenceAgentsRemediationKind,
 								Name:      targetNode.Name,
 								Namespace: medik8sparams.OperatorNs,
 								UID:       string(farCR.GetUID()),
@@ -528,7 +528,7 @@ var _ = Describe("FAR Destructive Tests",
 
 							noActionParams := make(map[string]interface{}, len(sharedParams))
 							for k, v := range sharedParams {
-								if k != "--action" {
+								if k != flagAction {
 									noActionParams[k] = v
 								}
 							}
@@ -628,7 +628,7 @@ var _ = Describe("FAR Destructive Tests",
 
 						Expect(helpers.WaitForEvents(ctx, APIClient.K8sClient,
 							helpers.InvolvedObjectRef{
-								Kind:      "FenceAgentsRemediation",
+								Kind:      fenceAgentsRemediationKind,
 								Name:      targetNode.Name,
 								Namespace: medik8sparams.OperatorNs,
 								UID:       string(farCR.GetUID()),
@@ -1266,12 +1266,12 @@ func buildFARUnstructured(
 	return &unstructured.Unstructured{
 		Object: map[string]interface{}{
 			"apiVersion": "fence-agents-remediation.medik8s.io/v1alpha1",
-			"kind":       "FenceAgentsRemediation",
+			"kind":       fenceAgentsRemediationKind,
 			"metadata": map[string]interface{}{
 				"name":      nodeName,
 				"namespace": medik8sparams.OperatorNs,
 			},
-			"spec": spec,
+			keySpec: spec,
 		},
 	}
 }
@@ -1289,9 +1289,9 @@ func buildFARTUnstructured(
 				"name":      name,
 				"namespace": medik8sparams.OperatorNs,
 			},
-			"spec": map[string]interface{}{
+			keySpec: map[string]interface{}{
 				"template": map[string]interface{}{
-					"spec": map[string]interface{}{
+					keySpec: map[string]interface{}{
 						"agent":               agent,
 						"sharedparameters":    sharedParams,
 						"nodeparameters":      nodeParams,

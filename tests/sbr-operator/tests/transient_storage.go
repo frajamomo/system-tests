@@ -160,7 +160,7 @@ var _ = Describe(
 				sbrparams.SBRCTransientTestName, storageClassName))
 
 			transientSBRC = buildSBRC(sbrparams.SBRCTransientTestName, map[string]interface{}{
-				"sharedStorageClass": storageClassName,
+				sharedStorageClassKey: storageClassName,
 			})
 
 			createErr := APIClient.Create(context.TODO(), transientSBRC)
@@ -179,7 +179,7 @@ var _ = Describe(
 
 			nodeList, nodeListErr := APIClient.CoreV1Interface.Nodes().List(
 				context.TODO(),
-				metav1.ListOptions{LabelSelector: "node-role.kubernetes.io/worker"})
+				metav1.ListOptions{LabelSelector: medik8sparams.WorkerRoleLabel})
 			Expect(nodeListErr).ToNot(HaveOccurred(), "Failed to list worker nodes")
 
 			for nodeIdx := range nodeList.Items {

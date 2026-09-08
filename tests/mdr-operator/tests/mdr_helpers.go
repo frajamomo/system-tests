@@ -36,7 +36,7 @@ var mdrGVK = schema.GroupVersionKind{
 var mdrtGVK = schema.GroupVersionKind{
 	Group:   mdrparams.CRDGroup,
 	Version: mdrparams.CRDVersion,
-	Kind:    "MachineDeletionRemediationTemplate",
+	Kind:    machineDeletionRemediationTemplateKind,
 }
 
 // nhcGVK is the GroupVersionKind for NodeHealthCheck CRs.
@@ -51,7 +51,7 @@ func buildMDRT(name string) *unstructured.Unstructured {
 	return &unstructured.Unstructured{
 		Object: map[string]interface{}{
 			"apiVersion": mdrparams.CRDGroup + "/" + mdrparams.CRDVersion,
-			"kind":       "MachineDeletionRemediationTemplate",
+			"kind":       machineDeletionRemediationTemplateKind,
 			"metadata": map[string]interface{}{
 				"name":      name,
 				"namespace": medik8sparams.OperatorNs,
@@ -76,14 +76,14 @@ func buildNHCForMDR(name, mdrtName string) *unstructured.Unstructured {
 		"selector": map[string]interface{}{
 			"matchExpressions": []interface{}{
 				map[string]interface{}{
-					"key":      "node-role.kubernetes.io/worker",
+					"key":      medik8sparams.WorkerRoleLabel,
 					"operator": "Exists",
 				},
 			},
 		},
 		"remediationTemplate": map[string]interface{}{
 			"apiVersion": mdrparams.CRDGroup + "/" + mdrparams.CRDVersion,
-			"kind":       "MachineDeletionRemediationTemplate",
+			"kind":       machineDeletionRemediationTemplateKind,
 			"name":       mdrtName,
 			"namespace":  medik8sparams.OperatorNs,
 		},
@@ -287,7 +287,7 @@ func waitForMDRRemediationComplete(
 			// Worker count restored. Find the replacement node.
 			nodeList := &corev1.NodeList{}
 			if listErr := APIClient.List(ctx, nodeList,
-				client.MatchingLabels{"node-role.kubernetes.io/worker": ""}); listErr != nil {
+				client.MatchingLabels{medik8sparams.WorkerRoleLabel: ""}); listErr != nil {
 				return false, nil
 			}
 

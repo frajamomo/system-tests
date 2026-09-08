@@ -56,9 +56,9 @@ func buildSNRT(name string) *unstructured.Unstructured {
 	snrt.SetGroupVersionKind(snrtGVK)
 	snrt.SetName(name)
 	snrt.SetNamespace(medik8sparams.OperatorNs)
-	snrt.Object["spec"] = map[string]interface{}{
+	snrt.Object[keySpec] = map[string]interface{}{
 		"template": map[string]interface{}{
-			"spec": map[string]interface{}{
+			keySpec: map[string]interface{}{
 				"remediationStrategy": "ResourceDeletion",
 			},
 		},
@@ -79,11 +79,11 @@ func cleanupSNRT(ctx context.Context, name string) {
 func buildNHCWithSNRT(nhcName, snrtName string) *unstructured.Unstructured {
 	nhc := buildNHCForWorkers(nhcName)
 	spec := nhcSpec(nhc)
-	spec["remediationTemplate"] = map[string]interface{}{
-		"apiVersion": nhcparams.SNRCRDGroup + "/" + nhcparams.SNRCRDVersion,
-		"kind":       nhcparams.SNRTemplateKind,
-		"name":       snrtName,
-		"namespace":  medik8sparams.OperatorNs,
+	spec[keyRemediationTemplate] = map[string]interface{}{
+		keyAPIVersion: nhcparams.SNRCRDGroup + "/" + nhcparams.SNRCRDVersion,
+		keyKind:       nhcparams.SNRTemplateKind,
+		keyName:       snrtName,
+		keyNamespace:  medik8sparams.OperatorNs,
 	}
 
 	return nhc
@@ -117,23 +117,23 @@ func buildNHC(name, selectorKey, selectorOp string, matchLabels map[string]inter
 	nhc.SetName(name)
 
 	spec := map[string]interface{}{
-		"remediationTemplate": map[string]interface{}{
-			"apiVersion": nhcparams.SNRCRDGroup + "/" + nhcparams.SNRCRDVersion,
-			"kind":       nhcparams.SNRTemplateKind,
-			"name":       nhcparams.SNRTemplateName,
-			"namespace":  medik8sparams.OperatorNs,
+		keyRemediationTemplate: map[string]interface{}{
+			keyAPIVersion: nhcparams.SNRCRDGroup + "/" + nhcparams.SNRCRDVersion,
+			keyKind:       nhcparams.SNRTemplateKind,
+			keyName:       nhcparams.SNRTemplateName,
+			keyNamespace:  medik8sparams.OperatorNs,
 		},
 		"minHealthy": int64(1),
 		"unhealthyConditions": []interface{}{
 			map[string]interface{}{
-				"type":     "Ready",
-				"status":   "False",
-				"duration": "60s",
+				keyType:     conditionTypeReady,
+				keyStatus:   conditionStatusFalse,
+				keyDuration: "60s",
 			},
 			map[string]interface{}{
-				"type":     "Ready",
-				"status":   "Unknown",
-				"duration": "60s",
+				keyType:     conditionTypeReady,
+				keyStatus:   conditionStatusUnknown,
+				keyDuration: "60s",
 			},
 		},
 	}
@@ -153,7 +153,7 @@ func buildNHC(name, selectorKey, selectorOp string, matchLabels map[string]inter
 		}
 	}
 
-	nhc.Object["spec"] = spec
+	nhc.Object[keySpec] = spec
 
 	return nhc
 }
@@ -490,10 +490,10 @@ func buildTestCRD(
 				},
 				Schema: &apiextensionsv1.CustomResourceValidation{
 					OpenAPIV3Schema: &apiextensionsv1.JSONSchemaProps{
-						Type: "object",
+						Type: keyObject,
 						Properties: map[string]apiextensionsv1.JSONSchemaProps{
-							"spec":   {Type: "object", XPreserveUnknownFields: ptr.To(true)},
-							"status": {Type: "object", XPreserveUnknownFields: ptr.To(true)},
+							keySpec:   {Type: keyObject, XPreserveUnknownFields: ptr.To(true)},
+							keyStatus: {Type: keyObject, XPreserveUnknownFields: ptr.To(true)},
 						},
 					},
 				},
@@ -508,7 +508,7 @@ func setupTestRemediationResources(ctx context.Context) {
 	By("Creating TestRemediationTemplate CRD")
 
 	trtCRD := buildTestCRD(nhcparams.TestRemediationTemplateCRDName,
-		"TestRemediationTemplate", "testremediationtemplates", "testremediationtemplate", "trt")
+		testRemediationTemplateKind, "testremediationtemplates", "testremediationtemplate", "trt")
 
 	if err := APIClient.Create(ctx, trtCRD); err != nil && !k8serrors.IsAlreadyExists(err) {
 		Fail(fmt.Sprintf("Failed to create TestRemediationTemplate CRD: %v", err))
@@ -532,18 +532,18 @@ func setupTestRemediationResources(ctx context.Context) {
 
 	trtCR := &unstructured.Unstructured{
 		Object: map[string]interface{}{
-			"apiVersion": nhcparams.TestRemediationGroup + "/" + nhcparams.TestRemediationVersion,
-			"kind":       "TestRemediationTemplate",
+			keyAPIVersion: nhcparams.TestRemediationGroup + "/" + nhcparams.TestRemediationVersion,
+			keyKind:       testRemediationTemplateKind,
 			"metadata": map[string]interface{}{
-				"name": nhcparams.TestRemediationTemplateName,
+				keyName: nhcparams.TestRemediationTemplateName,
 			},
-			"spec": map[string]interface{}{
+			keySpec: map[string]interface{}{
 				"template": map[string]interface{}{
-					"spec": map[string]interface{}{
+					keySpec: map[string]interface{}{
 						"strategy": map[string]interface{}{
 							"retryLimit": int64(1),
-							"timeout":    "5m0s",
-							"type":       "Wait",
+							keyTimeout:   "5m0s",
+							keyType:      "Wait",
 						},
 					},
 				},
@@ -627,7 +627,7 @@ func cleanupTestRemediationResources(ctx context.Context) {
 	// Delete CRs first
 	trtCR := &unstructured.Unstructured{}
 	trtCR.SetGroupVersionKind(schema.GroupVersionKind{
-		Group: nhcparams.TestRemediationGroup, Version: nhcparams.TestRemediationVersion, Kind: "TestRemediationTemplate"})
+		Group: nhcparams.TestRemediationGroup, Version: nhcparams.TestRemediationVersion, Kind: testRemediationTemplateKind})
 	trtCR.SetName(nhcparams.TestRemediationTemplateName)
 
 	deleteWithRetry(trtCR, "TestRemediationTemplate CR")
@@ -663,18 +663,22 @@ func buildNHCWithTestRemediation(name string) *unstructured.Unstructured {
 	spec := nhcSpec(nhc)
 
 	// TestRemediationTemplate is cluster-scoped, so no namespace is needed.
-	spec["remediationTemplate"] = map[string]interface{}{
-		"apiVersion": nhcparams.TestRemediationGroup + "/" + nhcparams.TestRemediationVersion,
-		"kind":       "TestRemediationTemplate",
-		"name":       nhcparams.TestRemediationTemplateName,
+	spec[keyRemediationTemplate] = map[string]interface{}{
+		keyAPIVersion: nhcparams.TestRemediationGroup + "/" + nhcparams.TestRemediationVersion,
+		keyKind:       testRemediationTemplateKind,
+		keyName:       nhcparams.TestRemediationTemplateName,
 	}
 
 	spec["unhealthyConditions"] = []interface{}{
 		map[string]interface{}{
-			"type": "Ready", "status": "False", "duration": nhcparams.TestRemediationUnhealthyDuration,
+			keyType:     conditionTypeReady,
+			keyStatus:   conditionStatusFalse,
+			keyDuration: nhcparams.TestRemediationUnhealthyDuration,
 		},
 		map[string]interface{}{
-			"type": "Ready", "status": "Unknown", "duration": nhcparams.TestRemediationUnhealthyDuration,
+			keyType:     conditionTypeReady,
+			keyStatus:   conditionStatusUnknown,
+			keyDuration: nhcparams.TestRemediationUnhealthyDuration,
 		},
 	}
 
@@ -708,7 +712,7 @@ var snrRemediator = remediatorConfig{
 
 var testRemediator = remediatorConfig{
 	apiVersion: nhcparams.TestRemediationGroup + "/" + nhcparams.TestRemediationVersion,
-	kind:       "TestRemediationTemplate",
+	kind:       testRemediationTemplateKind,
 	name:       nhcparams.TestRemediationTemplateName,
 }
 
@@ -741,23 +745,23 @@ func buildNHCWithEscalation(name string, steps []escalationStep) *unstructured.U
 	nhc := buildNHCForWorkers(name)
 	spec := nhcSpec(nhc)
 
-	delete(spec, "remediationTemplate")
+	delete(spec, keyRemediationTemplate)
 
 	escalations := make([]interface{}, len(steps))
 	for stepIndex, step := range steps {
 		tmpl := map[string]interface{}{
-			"apiVersion": step.templateAPIVersion,
-			"kind":       step.templateKind,
-			"name":       step.templateName,
+			keyAPIVersion: step.templateAPIVersion,
+			keyKind:       step.templateKind,
+			keyName:       step.templateName,
 		}
 		if step.templateNamespace != "" {
-			tmpl["namespace"] = step.templateNamespace
+			tmpl[keyNamespace] = step.templateNamespace
 		}
 
 		escalations[stepIndex] = map[string]interface{}{
-			"remediationTemplate": tmpl,
-			"order":               step.order,
-			"timeout":             step.timeout,
+			keyRemediationTemplate: tmpl,
+			"order":                step.order,
+			keyTimeout:             step.timeout,
 		}
 	}
 
@@ -765,10 +769,10 @@ func buildNHCWithEscalation(name string, steps []escalationStep) *unstructured.U
 
 	spec["unhealthyConditions"] = []interface{}{
 		map[string]interface{}{
-			"type": "Ready", "status": "False", "duration": nhcparams.EscalationUnhealthyDuration,
+			keyType: conditionTypeReady, keyStatus: conditionStatusFalse, keyDuration: nhcparams.EscalationUnhealthyDuration,
 		},
 		map[string]interface{}{
-			"type": "Ready", "status": "Unknown", "duration": nhcparams.EscalationUnhealthyDuration,
+			keyType: conditionTypeReady, keyStatus: conditionStatusUnknown, keyDuration: nhcparams.EscalationUnhealthyDuration,
 		},
 	}
 
@@ -782,7 +786,7 @@ func buildNHCWithEscalationRaw(name string, rawSteps []map[string]interface{}) *
 	nhc := buildNHCForWorkers(name)
 	spec := nhcSpec(nhc)
 
-	delete(spec, "remediationTemplate")
+	delete(spec, keyRemediationTemplate)
 
 	steps := make([]interface{}, len(rawSteps))
 	for i, s := range rawSteps {
@@ -798,18 +802,18 @@ func buildNHCWithEscalationRaw(name string, rawSteps []map[string]interface{}) *
 // Callers can delete keys to create intentionally invalid specs.
 func newEscalationStepRaw(remediator remediatorConfig, order int64, timeout string) map[string]interface{} {
 	tmpl := map[string]interface{}{
-		"apiVersion": remediator.apiVersion,
-		"kind":       remediator.kind,
-		"name":       remediator.name,
+		keyAPIVersion: remediator.apiVersion,
+		keyKind:       remediator.kind,
+		keyName:       remediator.name,
 	}
 	if remediator.namespace != "" {
-		tmpl["namespace"] = remediator.namespace
+		tmpl[keyNamespace] = remediator.namespace
 	}
 
 	return map[string]interface{}{
-		"remediationTemplate": tmpl,
-		"order":               order,
-		"timeout":             timeout,
+		keyRemediationTemplate: tmpl,
+		"order":                order,
+		keyTimeout:             timeout,
 	}
 }
 
@@ -840,10 +844,10 @@ func multiTemplateStepRaw(templateName string, order int64, timeout string) map[
 func buildAnnotatedMultiTemplate(name string) *unstructured.Unstructured {
 	return &unstructured.Unstructured{
 		Object: map[string]interface{}{
-			"apiVersion": nhcparams.TestRemediationGroup + "/" + nhcparams.TestRemediationVersion,
-			"kind":       nhcparams.MultiTemplateKind,
+			keyAPIVersion: nhcparams.TestRemediationGroup + "/" + nhcparams.TestRemediationVersion,
+			keyKind:       nhcparams.MultiTemplateKind,
 			"metadata": map[string]interface{}{
-				"name": name,
+				keyName: name,
 				"annotations": map[string]interface{}{
 					nhcparams.MultipleTemplatesSupportAnnotation: "true",
 				},
@@ -1031,7 +1035,7 @@ func snrCRExists(ctx context.Context, nodeName string) (bool, error) {
 func nhcSpec(nhc *unstructured.Unstructured) map[string]interface{} {
 	GinkgoHelper()
 
-	spec, ok := nhc.Object["spec"].(map[string]interface{})
+	spec, ok := nhc.Object[keySpec].(map[string]interface{})
 	Expect(ok).To(BeTrue(), "NHC object has no map spec")
 
 	return spec

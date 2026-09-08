@@ -82,7 +82,7 @@ var _ = Describe(
 			sbrTemplate.SetGroupVersionKind(schema.GroupVersionKind{
 				Group:   sbrparams.CRDGroup,
 				Version: sbrparams.CRDVersion,
-				Kind:    "StorageBasedRemediationTemplate",
+				Kind:    storageBasedRemediationTemplateKind,
 			})
 
 			templateErr := APIClient.Get(context.TODO(),
@@ -129,7 +129,7 @@ var _ = Describe(
 				sbrparams.SBRCNHCTestName, storageClass))
 
 			testSBRC = buildSBRC(sbrparams.SBRCNHCTestName, map[string]interface{}{
-				"sharedStorageClass": storageClass,
+				sharedStorageClassKey: storageClass,
 			})
 
 			createErr := APIClient.Create(context.TODO(), testSBRC)
@@ -146,7 +146,7 @@ var _ = Describe(
 			existingNHC.SetGroupVersionKind(schema.GroupVersionKind{
 				Group:   sbrparams.NHCAPIGroup,
 				Version: sbrparams.NHCAPIVersion,
-				Kind:    "NodeHealthCheck",
+				Kind:    nodeHealthCheckKind,
 			})
 
 			getErr := APIClient.Get(context.TODO(),
@@ -251,7 +251,7 @@ var _ = Describe(
 					obj.SetGroupVersionKind(schema.GroupVersionKind{
 						Group:   sbrparams.NHCAPIGroup,
 						Version: sbrparams.NHCAPIVersion,
-						Kind:    "NodeHealthCheck",
+						Kind:    nodeHealthCheckKind,
 					})
 
 					getErr := APIClient.Get(context.TODO(),

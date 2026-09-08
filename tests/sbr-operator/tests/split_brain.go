@@ -82,7 +82,7 @@ var _ = Describe(
 			controllerNodes := controllerPodNodes()
 
 			nodeList, err := APIClient.CoreV1Interface.Nodes().List(context.TODO(), metav1.ListOptions{
-				LabelSelector: "node-role.kubernetes.io/worker",
+				LabelSelector: medik8sparams.WorkerRoleLabel,
 			})
 			Expect(err).ToNot(HaveOccurred(), "Failed to list worker nodes")
 
@@ -145,7 +145,7 @@ var _ = Describe(
 				sbrparams.SBRCSplitBrainTestName, storageClass))
 
 			testSBRC = buildSBRC(sbrparams.SBRCSplitBrainTestName, map[string]interface{}{
-				"sharedStorageClass": storageClass,
+				sharedStorageClassKey: storageClass,
 			})
 
 			createErr := APIClient.Create(context.TODO(), testSBRC)
@@ -162,7 +162,7 @@ var _ = Describe(
 			existingNHC.SetGroupVersionKind(schema.GroupVersionKind{
 				Group:   sbrparams.NHCAPIGroup,
 				Version: sbrparams.NHCAPIVersion,
-				Kind:    "NodeHealthCheck",
+				Kind:    nodeHealthCheckKind,
 			})
 
 			getErr := APIClient.Get(context.TODO(),

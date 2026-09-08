@@ -496,13 +496,13 @@ func snapshotDaemonSetNames() map[string]bool {
 func buildSBRUnstructured(kind, name string, spec map[string]interface{}) *unstructured.Unstructured {
 	return &unstructured.Unstructured{
 		Object: map[string]interface{}{
-			"apiVersion": sbrparams.CRDGroup + "/" + sbrparams.CRDVersion,
-			"kind":       kind,
+			keyAPIVersion: sbrparams.CRDGroup + "/" + sbrparams.CRDVersion,
+			keyKind:       kind,
 			"metadata": map[string]interface{}{
-				"name":      name,
-				"namespace": medik8sparams.OperatorNs,
+				keyName:      name,
+				keyNamespace: medik8sparams.OperatorNs,
 			},
-			"spec": spec,
+			keySpec: spec,
 		},
 	}
 }
@@ -894,8 +894,8 @@ var _ = Describe(
 				})
 
 				for _, invalidCase := range []invalidSBRCCase{
-					{"below-min-timeout", "sbrTimeoutSeconds", sbrparams.SBRCTimeoutSecondsMin - 1},
-					{"above-max-timeout", "sbrTimeoutSeconds", sbrparams.SBRCTimeoutSecondsMax + 1},
+					{"below-min-timeout", sbrTimeoutSecondsKey, sbrparams.SBRCTimeoutSecondsMin - 1},
+					{"above-max-timeout", sbrTimeoutSecondsKey, sbrparams.SBRCTimeoutSecondsMax + 1},
 					{"below-min-failures", "maxConsecutiveFailures", sbrparams.SBRCMaxConsecutiveFailuresMin - 1},
 					{"above-max-failures", "maxConsecutiveFailures", sbrparams.SBRCMaxConsecutiveFailuresMax + 1},
 				} {
@@ -938,7 +938,7 @@ var _ = Describe(
 
 				sbrc := buildSBRC(sbrparams.SBRCControllerTestName,
 					map[string]interface{}{
-						"sharedStorageClass": "nonexistent-storage-class",
+						sharedStorageClassKey: "nonexistent-storage-class",
 					})
 
 				err := APIClient.Create(context.TODO(), sbrc)

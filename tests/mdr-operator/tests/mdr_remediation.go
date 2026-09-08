@@ -91,7 +91,7 @@ var _ = Describe("MDR Functional -- NHC-Triggered Remediation",
 			// of a recovered old node as a "new" replacement.
 			workerNodes := &corev1.NodeList{}
 			Expect(APIClient.List(ctx, workerNodes,
-				client.MatchingLabels{"node-role.kubernetes.io/worker": ""})).To(Succeed())
+				client.MatchingLabels{medik8sparams.WorkerRoleLabel: ""})).To(Succeed())
 
 			initialWorkerNames = make(map[string]bool, len(workerNodes.Items))
 			for i := range workerNodes.Items {

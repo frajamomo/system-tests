@@ -8,6 +8,9 @@ import (
 )
 
 const (
+	// annotationFalse is the string "false" used as a CSV feature-annotation value.
+	annotationFalse = "false"
+
 	// DefaultPollInterval is the polling interval used with Eventually calls.
 	DefaultPollInterval = 5 * time.Second
 

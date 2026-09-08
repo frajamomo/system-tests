@@ -45,9 +45,9 @@ var _ = Describe(
 				labels.ComponentController), func() {
 				By("Creating SNR with NodeDeletion remediationStrategy")
 
-				snrCR := buildSNRCR("SelfNodeRemediation", "test-unsupported-snr",
+				snrCR := buildSNRCR(selfNodeRemediationKind, "test-unsupported-snr",
 					map[string]interface{}{
-						"remediationStrategy": unsupportedStrategy,
+						keyRemediationStrategy: unsupportedStrategy,
 					})
 
 				err := APIClient.Create(context.TODO(), snrCR)
@@ -70,16 +70,16 @@ var _ = Describe(
 
 				snrtCR := &unstructured.Unstructured{
 					Object: map[string]interface{}{
-						"apiVersion": snrparams.CRDGroup + "/" + snrparams.CRDVersion,
-						"kind":       "SelfNodeRemediationTemplate",
-						"metadata": map[string]interface{}{
-							"name":      "test-unsupported-snrt",
-							"namespace": medik8sparams.OperatorNs,
+						keyAPIVersion: snrparams.CRDGroup + "/" + snrparams.CRDVersion,
+						keyKind:       selfNodeRemediationTemplateKind,
+						keyMetadata: map[string]interface{}{
+							keyName:      "test-unsupported-snrt",
+							keyNamespace: medik8sparams.OperatorNs,
 						},
-						"spec": map[string]interface{}{
+						keySpec: map[string]interface{}{
 							"template": map[string]interface{}{
-								"spec": map[string]interface{}{
-									"remediationStrategy": unsupportedStrategy,
+								keySpec: map[string]interface{}{
+									keyRemediationStrategy: unsupportedStrategy,
 								},
 							},
 						},
