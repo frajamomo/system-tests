@@ -4,7 +4,7 @@ set -e
 
 . "$(dirname "$0")"/common.sh
 
-GOLANGCI_LINT_VERSION="2.11.4"
+GOLANGCI_LINT_VERSION="2.13.2"
 
 # IsGoLangCiLintInstalled is used to check whether golangci-lint executable is on the $PATH.
 function IsGolangCiLintInstalled() {
@@ -46,7 +46,11 @@ function DownloadGolangCiLint() {
 	versionNumber="${1}"
 
 	echo "installing golangci-lint version ${versionNumber}"
-	if curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v${versionNumber}; then
+	# Pin the install script to the version tag being installed rather than
+	# master: the master install.sh checksum list can drift and mis-hash the
+	# release tarball (it verified 2.13.2 against the .sbom.json checksum and
+	# failed), whereas the tag's install.sh always matches its own release.
+	if curl -sSfL "https://raw.githubusercontent.com/golangci/golangci-lint/v${versionNumber}/install.sh" | sh -s -- -b "$(go env GOPATH)/bin" "v${versionNumber}"; then
 		return 0
 	fi
 
