@@ -9,6 +9,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	"github.com/rh-ecosystem-edge/eco-goinfra/pkg/pod"
 
+	commonlabels "github.com/medik8s/common/pkg/labels"
 	"github.com/medik8s/system-tests/tests/internal/helpers"
 	. "github.com/medik8s/system-tests/tests/internal/medik8sinittools"
 	"github.com/medik8s/system-tests/tests/internal/medik8sparams"
@@ -76,7 +77,7 @@ func buildNHCForMDR(name, mdrtName string) *unstructured.Unstructured {
 		"selector": map[string]interface{}{
 			"matchExpressions": []interface{}{
 				map[string]interface{}{
-					"key":      medik8sparams.WorkerRoleLabel,
+					"key":      commonlabels.WorkerRole,
 					"operator": "Exists",
 				},
 			},
@@ -287,7 +288,7 @@ func waitForMDRRemediationComplete(
 			// Worker count restored. Find the replacement node.
 			nodeList := &corev1.NodeList{}
 			if listErr := APIClient.List(ctx, nodeList,
-				client.MatchingLabels{medik8sparams.WorkerRoleLabel: ""}); listErr != nil {
+				client.MatchingLabels{commonlabels.WorkerRole: ""}); listErr != nil {
 				return false, nil
 			}
 

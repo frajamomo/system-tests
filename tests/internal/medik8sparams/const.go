@@ -12,8 +12,6 @@ const (
 	OperatorNs = "openshift-workload-availability"
 	// DefaultTimeout represents the default timeout.
 	DefaultTimeout = 300 * time.Second
-	// WorkerRoleLabel is the Kubernetes node-role label identifying worker nodes.
-	WorkerRoleLabel = "node-role.kubernetes.io/worker"
 )
 
 // WorkloadImage is the container image used for test workload pods.

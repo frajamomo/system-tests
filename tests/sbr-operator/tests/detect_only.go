@@ -13,6 +13,7 @@ import (
 	"github.com/rh-ecosystem-edge/eco-goinfra/pkg/reportxml"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	commonlabels "github.com/medik8s/common/pkg/labels"
 	"github.com/medik8s/system-tests/tests/internal/labels"
 	. "github.com/medik8s/system-tests/tests/internal/medik8sinittools"
 	"github.com/medik8s/system-tests/tests/internal/medik8sparams"
@@ -93,7 +94,7 @@ var _ = Describe(
 			By("Listing schedulable worker nodes")
 
 			nodeList, listErr := APIClient.CoreV1Interface.Nodes().List(context.TODO(), metav1.ListOptions{
-				LabelSelector: medik8sparams.WorkerRoleLabel,
+				LabelSelector: commonlabels.WorkerRole,
 			})
 			Expect(listErr).ToNot(HaveOccurred(), "Failed to list worker nodes")
 

@@ -11,6 +11,7 @@ import (
 	"github.com/rh-ecosystem-edge/eco-goinfra/pkg/deployment"
 	"github.com/rh-ecosystem-edge/eco-goinfra/pkg/reportxml"
 
+	commonlabels "github.com/medik8s/common/pkg/labels"
 	"github.com/medik8s/system-tests/tests/internal/helpers"
 	"github.com/medik8s/system-tests/tests/internal/labels"
 	. "github.com/medik8s/system-tests/tests/internal/medik8sinittools"
@@ -91,7 +92,7 @@ var _ = Describe("MDR Functional -- NHC-Triggered Remediation",
 			// of a recovered old node as a "new" replacement.
 			workerNodes := &corev1.NodeList{}
 			Expect(APIClient.List(ctx, workerNodes,
-				client.MatchingLabels{medik8sparams.WorkerRoleLabel: ""})).To(Succeed())
+				client.MatchingLabels{commonlabels.WorkerRole: ""})).To(Succeed())
 
 			initialWorkerNames = make(map[string]bool, len(workerNodes.Items))
 			for i := range workerNodes.Items {

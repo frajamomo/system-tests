@@ -9,6 +9,7 @@ import (
 	"github.com/rh-ecosystem-edge/eco-goinfra/pkg/pod"
 	"github.com/rh-ecosystem-edge/eco-goinfra/pkg/reportxml"
 
+	commonlabels "github.com/medik8s/common/pkg/labels"
 	"github.com/medik8s/system-tests/tests/internal/labels"
 	. "github.com/medik8s/system-tests/tests/internal/medik8sinittools"
 	"github.com/medik8s/system-tests/tests/internal/medik8sparams"
@@ -197,7 +198,7 @@ var _ = Describe(
 			controllerNodes := controllerPodNodes()
 
 			nodeList, err := APIClient.CoreV1Interface.Nodes().List(context.TODO(), metav1.ListOptions{
-				LabelSelector: medik8sparams.WorkerRoleLabel,
+				LabelSelector: commonlabels.WorkerRole,
 			})
 			Expect(err).ToNot(HaveOccurred(), "Failed to list worker nodes")
 

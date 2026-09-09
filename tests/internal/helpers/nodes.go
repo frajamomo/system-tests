@@ -6,12 +6,10 @@ import (
 	"math/rand"
 	"sort"
 
+	commonlabels "github.com/medik8s/common/pkg/labels"
 	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
-
-// workerRoleLabel is the Kubernetes node-role label identifying worker nodes.
-const workerRoleLabel = "node-role.kubernetes.io/worker"
 
 // IsNodeReady returns true if the node has a Ready condition with status True.
 func IsNodeReady(node *corev1.Node) bool {
@@ -30,7 +28,7 @@ func IsNodeReady(node *corev1.Node) bool {
 func SelectWorkerNode(ctx context.Context, k8sClient client.Client, excludeNodes ...string) (*corev1.Node, error) {
 	nodeList := &corev1.NodeList{}
 
-	if err := k8sClient.List(ctx, nodeList, client.MatchingLabels{workerRoleLabel: ""}); err != nil {
+	if err := k8sClient.List(ctx, nodeList, client.MatchingLabels{commonlabels.WorkerRole: ""}); err != nil {
 		return nil, fmt.Errorf("failed to list worker nodes: %w", err)
 	}
 
@@ -69,7 +67,7 @@ func SelectWorkerNode(ctx context.Context, k8sClient client.Client, excludeNodes
 // CountReadyWorkerNodes returns the number of Ready, schedulable worker nodes.
 func CountReadyWorkerNodes(ctx context.Context, k8sClient client.Client) (int, error) {
 	nodeList := &corev1.NodeList{}
-	if err := k8sClient.List(ctx, nodeList, client.MatchingLabels{workerRoleLabel: ""}); err != nil {
+	if err := k8sClient.List(ctx, nodeList, client.MatchingLabels{commonlabels.WorkerRole: ""}); err != nil {
 		return 0, fmt.Errorf("failed to list worker nodes: %w", err)
 	}
 
@@ -95,7 +93,7 @@ func CountReadyWorkerNodes(ctx context.Context, k8sClient client.Client) (int, e
 // resilience/cordon tests from touching control-plane capacity on compact clusters.
 func ListSchedulableWorkerNodes(ctx context.Context, k8sClient client.Client) ([]corev1.Node, error) {
 	nodeList := &corev1.NodeList{}
-	if err := k8sClient.List(ctx, nodeList, client.MatchingLabels{workerRoleLabel: ""}); err != nil {
+	if err := k8sClient.List(ctx, nodeList, client.MatchingLabels{commonlabels.WorkerRole: ""}); err != nil {
 		return nil, fmt.Errorf("failed to list worker nodes: %w", err)
 	}
 
