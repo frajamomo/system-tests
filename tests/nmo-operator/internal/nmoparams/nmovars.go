@@ -35,11 +35,11 @@ var (
 	RequiredAnnotations = map[string]string{
 		"features.operators.openshift.io/disconnected":     "true",
 		"features.operators.openshift.io/fips-compliant":   "true",
-		"features.operators.openshift.io/proxy-aware":      annotationFalse,
-		"features.operators.openshift.io/tls-profiles":     annotationFalse,
-		"features.operators.openshift.io/token-auth-aws":   annotationFalse,
-		"features.operators.openshift.io/token-auth-azure": annotationFalse,
-		"features.operators.openshift.io/token-auth-gcp":   annotationFalse,
+		"features.operators.openshift.io/proxy-aware":      medik8sparams.AnnotationFalse,
+		"features.operators.openshift.io/tls-profiles":     medik8sparams.AnnotationFalse,
+		"features.operators.openshift.io/token-auth-aws":   medik8sparams.AnnotationFalse,
+		"features.operators.openshift.io/token-auth-azure": medik8sparams.AnnotationFalse,
+		"features.operators.openshift.io/token-auth-gcp":   medik8sparams.AnnotationFalse,
 		"operatorframework.io/suggested-namespace":         medik8sparams.OperatorNs,
 	}
 )

@@ -3,9 +3,6 @@ package nmoparams
 import "time"
 
 const (
-	// annotationFalse is the string "false" used as a CSV feature-annotation value.
-	annotationFalse = "false"
-
 	// Label is the operator name used in the suite-level Labels array.
 	Label = "nmo"
 	// DefaultPollInterval is the polling interval used with Eventually calls.

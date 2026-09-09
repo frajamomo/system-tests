@@ -12,6 +12,8 @@ const (
 	OperatorNs = "openshift-workload-availability"
 	// DefaultTimeout represents the default timeout.
 	DefaultTimeout = 300 * time.Second
+	// AnnotationFalse is the string "false" used as a CSV feature-annotation value.
+	AnnotationFalse = "false"
 )
 
 // WorkloadImage is the container image used for test workload pods.
